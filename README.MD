@@ -45,7 +45,7 @@ If you want more than 1 mapping you can seperate them with a `,` (without spaces
 If everything is setup you can manually check if everything is running smoothly by executing
 
 ```bash
-php cron.php
+php src/cron.php
 ```
 
 You should see output about the data that is retrieved from Pingdom and sent to Cachet.
@@ -55,9 +55,9 @@ You can add a CRON entry to run the cron overy minute (or other interval) to upd
 ```
 # m   h  dom mon dow   command
 # Run the Pingdom to Cachet CRON every minute
-  *   *  *   *   *     php /path/to/pingdom-to-cachet/cron.php > /dev/null 2>&1
+  *   *  *   *   *     php /path/to/pingdom-to-cachet/src/cron.php > /dev/null 2>&1
 # Run the Pingdom to Cachet CRON every 5 minutes
-# */5 *  *   *   *     php /path/to/pingdom-to-cachet/cron.php > /dev/null 2>&1
+# */5 *  *   *   *     php /path/to/pingdom-to-cachet/src/cron.php > /dev/null 2>&1
 ```
 
 
