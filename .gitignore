@@ -1,0 +1,18 @@
+# Node.js
+/node_modules
+
+# IDE
+/.idea
+/_ide_helper.php
+/.phpstorm.meta.php
+
+# OSX Crap
+.DS_Store
+
+# PHP Composer
+/vendor
+composer.phar
+
+# Environment config
+.env
+.env.gen

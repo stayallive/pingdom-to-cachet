@@ -1,0 +1,18 @@
+{
+    "name": "stayallive/pingdom-cachet",
+    "description": "Simple script to push Pingdom data to Cachet.",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alex Bouma",
+            "email": "me@alexbouma.me"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "vlucas/phpdotenv": "2.4.*",
+        "sgrodzicki/pingdom": "1.1.*",
+        "damianopetrungaro/cachet-sdk": "1.0.*"
+    }
+}
