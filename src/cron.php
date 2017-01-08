@@ -54,7 +54,7 @@ foreach ($metricsMap as $metricMap) {
     $point  = ['value' => $result['responsetime'], 'timestamp' => $result['time']];
 
     echo "[Metric] Create point for Pingdom check:{$metricMap['pingdom']} to Cachet metric:{$metricMap['cachet']}" . PHP_EOL;
-    echo "[Metric] Point data: " . json_encode($point) . PHP_EOL;
+    echo '[Metric] Point data: ' . json_encode($point) . PHP_EOL;
 
     $cachetPoints->storePoint($metricMap['cachet'], $point);
 }
