@@ -15,7 +15,7 @@ if (!file_exists('vendor/autoload.php')) {
 require 'vendor/autoload.php';
 
 // Load the configuration file
-$dotenv = new Dotenv(__DIR__);
+$dotenv = new Dotenv(__DIR__ . '/../');
 $dotenv->load();
 $dotenv->required([
     'PINGDOM_USERNAME',
