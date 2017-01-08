@@ -6,13 +6,13 @@ use Damianopetrungaro\CachetSDK\CachetClient;
 use Damianopetrungaro\CachetSDK\Points\PointFactory;
 
 // Check if composer dependencies are installed
-if (!file_exists('vendor/autoload.php')) {
+if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
     echo 'Error: Run `composer install` before running this script.' . PHP_EOL;
     die;
 }
 
 // Require the composer autoloader file
-require 'vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 // Load the configuration file
 $dotenv = new Dotenv(__DIR__ . '/../');
