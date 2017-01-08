@@ -5,8 +5,9 @@ A very simple cron script to send [Pingdom](https://www.pingdom.com/) data to [C
 
 ## Prerequesites
 
-* PHP 7.0 or newer
+* Git
 * Composer
+* PHP 7.0 or newer
 
 ## Usage
 
@@ -59,6 +60,11 @@ You can add a CRON entry to run the cron overy minute (or other interval) to upd
 # Run the Pingdom to Cachet CRON every 5 minutes
 # */5 *  *   *   *     php /path/to/pingdom-to-cachet/src/cron.php > /dev/null 2>&1
 ```
+
+
+## Upgrading
+
+Simply run `git pull` where you pulled the repository to, easy as cake.
 
 
 ## Security Vulnerabilities
