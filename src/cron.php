@@ -3,6 +3,7 @@
 use Dotenv\Dotenv;
 use Pingdom\Client;
 use Damianopetrungaro\CachetSDK\CachetClient;
+use Damianopetrungaro\CachetSDK\Components\ComponentFactory;
 use Damianopetrungaro\CachetSDK\Points\PointFactory;
 
 // Check if composer dependencies are installed
@@ -34,27 +35,43 @@ $extractMap = function ($map) {
     return compact('cachet', 'pingdom');
 };
 
+function write($line)
+{
+    echo $line.PHP_EOL;
+}
+
 // Parse the metrics & components map
 $metricsMap    = array_map($extractMap, explode(',', getenv('METRICS_MAP')));
 $componentsMap = array_map($extractMap, explode(',', getenv('COMPONENTS_MAP')));
 
 // Initialize the Cachet client library
 $cachetClient = new CachetClient(getenv('CACHET_HOST') . '/api/v1/', getenv('CACHET_API_KEY'));
+$componentManager = ComponentFactory::build($cachetClient);
 $cachetPoints = PointFactory::build($cachetClient);
 
 // Initialize the Pingdom client library
 $pingdomClient = new Client(getenv('PINGDOM_USERNAME'), getenv('PINGDOM_PASSWORD'), getenv('PINGDOM_API_KEY'));
 
-// Update the components
-// @TODO(stayallive): Implement the component updates
+$checks = $pingdomClient->getChecks();
+foreach ($checks as $check) {
+    foreach ($componentsMap as $componentMap) {
+        if ($componentMap['pingdom'] == $check['id']) {
+            write("[Component] Updating Pingdom {$componentMap['pingdom']} to Cachet {$check['id']} with status: {$check['status']}");
+
+            $component = $componentManager->updateComponent($componentMap['cachet'], [
+                'status' => (int) ($check['status'] == 'up' ?: 4),
+            ]);
+        }
+    }
+}
 
 // Update the metrics
 foreach ($metricsMap as $metricMap) {
     $result = $pingdomClient->getResults($metricMap['pingdom'], 1)[0];
     $point  = ['value' => $result['responsetime'], 'timestamp' => $result['time']];
 
-    echo "[Metric] Create point for Pingdom check:{$metricMap['pingdom']} to Cachet metric:{$metricMap['cachet']}" . PHP_EOL;
-    echo '[Metric] Point data: ' . json_encode($point) . PHP_EOL;
+    write("[Metric] Create point for Pingdom check:{$metricMap['pingdom']} to Cachet metric:{$metricMap['cachet']}");
+    write('[Metric] Point data: ' . json_encode($point));
 
     $cachetPoints->storePoint($metricMap['cachet'], $point);
 }
