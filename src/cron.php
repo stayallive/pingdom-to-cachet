@@ -72,8 +72,6 @@ foreach ($metricsMap as $metricMap) {
     foreach ($results as $result) {
         $point = ['value' => $result['responsetime'], 'timestamp' => $result['time']];
 
-        var_dump($result);
-
         write("[Metric] Create point for Pingdom check: {$metricMap['pingdom']} to Cachet metric: {$metricMap['cachet']}");
         write('[Metric] Point data: ' . json_encode($point));
 
