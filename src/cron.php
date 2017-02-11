@@ -6,6 +6,7 @@ use Damianopetrungaro\CachetSDK\CachetClient;
 use Damianopetrungaro\CachetSDK\Points\PointFactory;
 use Damianopetrungaro\CachetSDK\Components\ComponentFactory;
 
+
 // Require our helpers
 require __DIR__ . '/helpers.php';
 
@@ -18,6 +19,7 @@ if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
 // Require the composer autoloader file
 require __DIR__ . '/../vendor/autoload.php';
 
+
 // Load the configuration file
 $dotenv = new Dotenv(__DIR__ . '/../');
 $dotenv->load();
@@ -28,6 +30,7 @@ $dotenv->required([
     'CACHET_HOST',
     'CACHET_API_KEY',
 ])->notEmpty();
+
 
 // Initialize the API clients
 $cachetClient  = new CachetClient(getenv('CACHET_HOST') . '/api/v1/', getenv('CACHET_API_KEY'));
@@ -58,6 +61,8 @@ if (!empty($metricsMap)) {
         }
     }
 
+} else {
+    write("[Metric] Section skipped since no (valid) mapping was found.");
 }
 
 
@@ -88,4 +93,6 @@ if (!empty($componentsMap)) {
         }
     }
 
+} else {
+    write("[Component] Section skipped since no (valid) mapping was found.");
 }
