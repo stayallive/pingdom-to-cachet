@@ -6,7 +6,6 @@ use Damianopetrungaro\CachetSDK\CachetClient;
 use Damianopetrungaro\CachetSDK\Points\PointFactory;
 use Damianopetrungaro\CachetSDK\Components\ComponentFactory;
 
-
 // Require our helpers
 require __DIR__ . '/helpers.php';
 
@@ -60,9 +59,8 @@ if (!empty($metricsMap)) {
             $cachetPoints->storePoint($metricMap['cachet'], $point);
         }
     }
-
 } else {
-    write("[Metric] Section skipped since no (valid) mapping was found.");
+    write('[Metric] Section skipped since no (valid) mapping was found.');
 }
 
 
@@ -92,7 +90,6 @@ if (!empty($componentsMap)) {
             }
         }
     }
-
 } else {
-    write("[Component] Section skipped since no (valid) mapping was found.");
+    write('[Component] Section skipped since no (valid) mapping was found.');
 }
