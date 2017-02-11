@@ -6,10 +6,13 @@ use Damianopetrungaro\CachetSDK\CachetClient;
 use Damianopetrungaro\CachetSDK\Points\PointFactory;
 use Damianopetrungaro\CachetSDK\Components\ComponentFactory;
 
+// Require our helpers
+require __DIR__ . '/helpers.php';
+
 // Check if composer dependencies are installed
 if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    echo 'Error: Run `composer install` before running this script.' . PHP_EOL;
-    die;
+    write('Error: Run `composer install` before running this script.');
+    exit(1);
 }
 
 // Require the composer autoloader file
@@ -24,57 +27,65 @@ $dotenv->required([
     'PINGDOM_API_KEY',
     'CACHET_HOST',
     'CACHET_API_KEY',
-    'COMPONENTS_MAP',
-    'METRICS_MAP',
 ])->notEmpty();
 
-// Little helper to parse the maps
-$extractMap = function ($map) {
-    list($cachet, $pingdom) = explode(':', $map);
-
-    return compact('cachet', 'pingdom');
-};
-
-function write($line)
-{
-    echo $line . PHP_EOL;
-}
-
-// Parse the metrics & components map
-$metricsMap    = array_map($extractMap, explode(',', getenv('METRICS_MAP')));
-$componentsMap = array_map($extractMap, explode(',', getenv('COMPONENTS_MAP')));
-
-// Initialize the Cachet client library
-$cachetClient     = new CachetClient(getenv('CACHET_HOST') . '/api/v1/', getenv('CACHET_API_KEY'));
-$componentManager = ComponentFactory::build($cachetClient);
-$cachetPoints     = PointFactory::build($cachetClient);
-
-// Initialize the Pingdom client library
+// Initialize the API clients
+$cachetClient  = new CachetClient(getenv('CACHET_HOST') . '/api/v1/', getenv('CACHET_API_KEY'));
 $pingdomClient = new Client(getenv('PINGDOM_USERNAME'), getenv('PINGDOM_PASSWORD'), getenv('PINGDOM_API_KEY'));
 
-$checks = $pingdomClient->getChecks();
-foreach ($checks as $check) {
-    foreach ($componentsMap as $componentMap) {
-        if ($componentMap['pingdom'] == $check['id']) {
-            write("[Component] Updating Pingdom {$componentMap['pingdom']} to Cachet {$check['id']} with status: {$check['status']}");
 
-            $component = $componentManager->updateComponent($componentMap['cachet'], [
-                'status' => ($check['status'] == 'up' ? 1 : 4),
-            ]);
+// Parse the metrics mapping
+$metricsMap = array_filter(array_map('extractMap', explode(',', env('METRICS_MAP', ''))), function ($map) {
+    return !empty($map);
+});
+
+// Run the metrics section only if there are metrics mapped
+if (!empty($metricsMap)) {
+
+    // Load up the cachet point client to write data points to
+    $cachetPoints = PointFactory::build($cachetClient);
+
+    // Run over all the mapped metrics to write new points retrieved from Pingdom
+    foreach ($metricsMap as $metricMap) {
+        $results = $pingdomClient->getResults($metricMap['pingdom'], (int)env('PINGDOM_RESULT_COUNT', 2));
+
+        foreach ($results as $result) {
+            $point = ['value' => $result['responsetime'], 'timestamp' => $result['time']];
+
+            write("[Metric] Write point from Pingdom check:{$metricMap['pingdom']} to Cachet metric:{$metricMap['cachet']} (" . json_encode($point) . ')');
+
+            $cachetPoints->storePoint($metricMap['cachet'], $point);
         }
     }
+
 }
 
-// Update the metrics
-foreach ($metricsMap as $metricMap) {
-    $results = $pingdomClient->getResults($metricMap['pingdom'], 2);
 
-    foreach ($results as $result) {
-        $point = ['value' => $result['responsetime'], 'timestamp' => $result['time']];
+// Parse the components mapping
+$componentsMap = array_filter(array_map('extractMap', explode(',', env('COMPONENTS_MAP', ''))), function ($map) {
+    return !empty($map);
+});
 
-        write("[Metric] Create point for Pingdom check: {$metricMap['pingdom']} to Cachet metric: {$metricMap['cachet']}");
-        write('[Metric] Point data: ' . json_encode($point));
+// Run the components section only if there are components mapped
+if (!empty($componentsMap)) {
 
-        $cachetPoints->storePoint($metricMap['cachet'], $point);
+    // Get the checks from pingdom to map the component statuses
+    $pingdomChecks = $pingdomClient->getChecks();
+
+    // Load up the cachet component client to write component updates to
+    $cachetComponents = ComponentFactory::build($cachetClient);
+
+    // Run over all the checks and execute updates if needed
+    foreach ($pingdomChecks as $check) {
+        foreach ($componentsMap as $componentMap) {
+            if ($componentMap['pingdom'] == $check['id']) {
+                write("[Component] Updating Pingdom check:{$componentMap['pingdom']} to Cachet component:{$check['id']} with status:{$check['status']}");
+
+                $component = $cachetComponents->updateComponent($componentMap['cachet'], [
+                    'status' => ($check['status'] == 'down' ? 4 : 1),
+                ]);
+            }
+        }
     }
+
 }
