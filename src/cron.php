@@ -43,7 +43,6 @@ $metricsMap = array_filter(array_map('extractMap', explode(',', env('METRICS_MAP
 
 // Run the metrics section only if there are metrics mapped
 if (!empty($metricsMap)) {
-
     // Load up the cachet point client to write data points to
     $cachetPoints = PointFactory::build($cachetClient);
 
@@ -52,11 +51,16 @@ if (!empty($metricsMap)) {
         $results = $pingdomClient->getResults($metricMap['pingdom'], (int)env('PINGDOM_RESULT_COUNT', 2));
 
         foreach ($results as $result) {
-            $point = ['value' => $result['responsetime'], 'timestamp' => $result['time']];
+            // There is only a response time available when the status is up
+            if ($result['status'] === 'up') {
+                $point = ['value' => $result['responsetime'], 'timestamp' => $result['time']];
 
-            write("[Metric] Write point from Pingdom check:{$metricMap['pingdom']} to Cachet metric:{$metricMap['cachet']} (" . json_encode($point) . ')');
+                write("[Metric] Write point from Pingdom check:{$metricMap['pingdom']} to Cachet metric:{$metricMap['cachet']} (" . json_encode($point) . ')');
 
-            $cachetPoints->storePoint($metricMap['cachet'], $point);
+                $cachetPoints->storePoint($metricMap['cachet'], $point);
+            } else {
+                write("[Metric] No point for Pingdom check:{$metricMap['pingdom']} to Cachet metric:{$metricMap['cachet']} because status:{$result['status']}");
+            }
         }
     }
 } else {
@@ -71,7 +75,6 @@ $componentsMap = array_filter(array_map('extractMap', explode(',', env('COMPONEN
 
 // Run the components section only if there are components mapped
 if (!empty($componentsMap)) {
-
     // Get the checks from pingdom to map the component statuses
     $pingdomChecks = $pingdomClient->getChecks();
 
