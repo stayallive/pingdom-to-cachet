@@ -85,8 +85,8 @@ if (!empty($componentsMap)) {
     foreach ($pingdomChecks as $check) {
         foreach ($componentsMap as $componentMap) {
             if ($componentMap['pingdom'] == $check['id']) {
-                $data = $cachetComponents->getComponent($componentMap['cachet']);
-                $data = $data['data'];
+                $data      = $cachetComponents->getComponent($componentMap['cachet']);
+                $data      = $data['data'];
                 $newStatus = $check['status'] == 'down' ? 4 : 1;
 
                 if ($data['status'] == $newStatus) {
