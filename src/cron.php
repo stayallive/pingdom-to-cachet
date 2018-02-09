@@ -85,10 +85,27 @@ if (!empty($componentsMap)) {
     foreach ($pingdomChecks as $check) {
         foreach ($componentsMap as $componentMap) {
             if ($componentMap['pingdom'] == $check['id']) {
+                $component = $cachetComponents->getComponent($componentMap['cachet']);
+
+                if (empty($component['data']['id'])) {
+                    write("[Component] Skipping Pingdom check:{$componentMap['pingdom']}, because the component could not be found in Cachet.");
+
+                    continue;
+                }
+
+                $cachetStatus  = (int)$component['data']['status'];
+                $pingdomStatus = $check['status'] == 'down' ? 4 : 1;
+
+                if ($cachetStatus === $pingdomStatus) {
+                    write("[Component] Skipping Pingdom check:{$componentMap['pingdom']}, because the status in Cachet is already equal.");
+
+                    continue;
+                }
+
                 write("[Component] Updating Pingdom check:{$componentMap['pingdom']} to Cachet component:{$check['id']} with status:{$check['status']}");
 
-                $component = $cachetComponents->updateComponent($componentMap['cachet'], [
-                    'status' => ($check['status'] == 'down' ? 4 : 1),
+                $cachetComponents->updateComponent($componentMap['cachet'], [
+                    'status' => $check['status'] === 'down' ? 4 : 1,
                 ]);
             }
         }
