@@ -38,7 +38,7 @@ Edit `.env` with your favorite editor (ex. `nano .env`) and update the values:
 * `CACHET_HOST`: The location of your Cachet installation (ex. `https://status.example.com`)
 * `CACHET_API_KEY`: The API key of your Cachet user
 * `COMPONENTS_MAP`: The mapping between you Cachet component ID and your Pingdom check ID (ex. `1:12345,2:54321`)
-* `METRICS_MAP`: The mapping between you Cachet matric ID and your Pingdom check ID (ex. `1:12345,2:54321`)
+* `METRICS_MAP`: The mapping between you Cachet metric ID and your Pingdom check ID (ex. `1:12345,2:54321`)
 
 The maps need to be defined in the following format: `<CACHET_ID>:<PINGDOM_ID>`.
 If you want more than 1 mapping you can seperate them with a `,` (without spaces)
